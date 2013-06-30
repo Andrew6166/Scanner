@@ -5,17 +5,17 @@ import sys
 import Queue
 import threading
 import time
-from portscanner.ThreadScan import ThreadScan
-from portscanner.PortScanner import PortScan
+from ThreadScan import ThreadScan
+from PortScanner import PortScan
 
-from portscanner.PortScanner import TextEventType
-from portscanner.PortScanner import EVT_THREAD_TEXT_EVENT
+from PortScanner import TextEventType
+from PortScanner import EVT_THREAD_TEXT_EVENT
 
-from portscanner.PortScanner import StatusEventType
-from portscanner.PortScanner import EVT_STATUS_BAR_EVENT
+from PortScanner import StatusEventType
+from PortScanner import EVT_STATUS_BAR_EVENT
 
-from portscanner.Status import gaugeEventType
-from portscanner.Status import EVT_GAUGE_EVENT
+from Status import gaugeEventType
+from Status import EVT_GAUGE_EVENT
 
 
 import wx
@@ -26,7 +26,7 @@ TASK_RANGE = 100
 
 
 
-class Example(wx.Panel):
+class PortScannerPanel(wx.Panel):
            
 	def __init__(self, parent, *args, **kw):
 		wx.Panel.__init__(self, parent, size=(600,500),*args, **kw)
@@ -133,8 +133,8 @@ class Example(wx.Panel):
 		e.Skip()
 
 	def StatusTextInfo(self, e):
-		msg = e.getText()
-		self.sb.SetStatusText(msg)
+		#msg = e.getText()
+		#parent.sb.SetStatusText(msg)
 		e.Skip()
 		
 	def StatusBar(self, e):
@@ -161,7 +161,6 @@ class Example(wx.Panel):
 			self.text_info.AppendText('ERROR, Timeout value must be integer'+'\n')
 			return
 		
-		parent.sb.SetStatusText('Scan started...')
 		t = PortScan(ipaddress, timeout, self.scan_type, self.gauge, self )
 		t.start()
 		
