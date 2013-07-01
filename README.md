@@ -7,7 +7,7 @@ Batch IP scanner and port scanner
 or any UI and one of my first programs using threading. 
   
   Todo:
-    -fix/catch overflow problem with inputting too many ips in ip address range
+    -fix/catch overflow problem with inputting too many ips in ip address range\n
     -bind timer option on ip scanner to actual function
     -add saving features
     -fix layout problems
