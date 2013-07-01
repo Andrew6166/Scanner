@@ -1,107 +1,134 @@
 #!/usr/bin/env python
 import Queue
 import threading
-import urllib2
 import time
 import subprocess
 import socket
+import wx
+from Status import Status
+from IPScanThread import IPScanThread
+from NewTextEvent import NewTextEvent
+from NewIntEvent import NewIntEvent
+from PanelMessage import PanelMessage
+from Status import gaugeEventType
+from Status import EVT_GAUGE_EVENT
           
+TextEventType = wx.NewEventType()
+EVT_THREAD_TEXT_EVENT = wx.PyEventBinder(TextEventType, 1)
 
-f = open('./iplist.txt', 'a')         
-queue = Queue.Queue()
-ip_list = []
-def ping(address):
-	ping = subprocess.Popen(['/bin/ping',address, '-c 1'], stderr=subprocess.STDOUT,stdout = subprocess.PIPE )
-	out, err = ping.communicate()
-	#print out
-	if '1 received' in out:
-		return True
-	else:
-		return False 
+StatusEventType = wx.NewEventType()
+EVT_STATUS_BAR_EVENT =wx.PyEventBinder(StatusEventType, 1)
+
+
+class IPScan(threading.Thread):
+	def __init__(self,  output_window, iprange, loglevel):
+		threading.Thread.__init__(self)	
+		#set up the message write to the panel
+		self.message = PanelMessage(output_window)
 		
-def scan(address, port): 
-	s = socket.socket()
-	s.settimeout(2) 
-	#print 'Scanning\t', port 
-	try: 
-		s.connect((address, port)) 
-		#print port, '\t Open' 
+		#iprange
+		self.iprange = iprange
 		
-		return True 
-	except socket.error, e: 
-		#print port, '\t Closed' 
-		return False
-	s.close()        
-		  
-class ThreadUrl(threading.Thread):
-	
-	def __init__(self, queue):
-		threading.Thread.__init__(self)
-		self.queue = queue
+		#File to write out to
+		#f = open('./data/iplist.txt', 'a')
 		
-	def run(self):
-		while True:
-                #grabs host from queue
-            
-			host = self.queue.get()
-			openport = False	
-			if host == 'kill':
-				break		
-			response = ping(host)
-			ports = ''
-			if response == True:
-				port_open = False
+		#creat queue for consumer threads
+		self.queue = Queue.Queue()		
+		
+		#initialize empty array for sortage of ip list
+		self.ip_list = []
+		
+		#parent window
+		self.output_window = output_window
+		
+		#creat empty array for all the ip addresses we will scan
+		self.ips_to_scan = []
+		
+		#list to contain all the threeads generated
+		self.threads = []
+		
+		#verbose
+		self.log_level = loglevel
+		
 				
-				ip_list.append(host)
-				for port in [20, 21, 22, 23, 79, 80, 110, 113, 119, 143, 443, 1002, 1720, 5000, 8080]:
-					if scan(host, port) == True:
-						openport = True
-						print 'open port: ', port
-						ports = ports+',' + str(port)
-				if openport == True:
-					f.write(host+','+ports+'\n')
-					print host, '<>-<>-<>-<>-<>-<>-<>-<>-OPEN--PORT-<>-<>-<>-<>-<>-<>-<>-<>'
-				else:
-					print host, '******************responded******************'
-			else:
-				print host, ' did not respond'
-			self.queue.task_done()
-		print 'thread closing'
+	def run(self):
+		self.Scan()
+		
+	def stop(self):
+		self.message.send('stopping')
+		for i in range(200):
+			self.queue.put('kill')
+		
+		#self.queue.join()
+		for thread in self.threads:
+			thread.stop()
+		
+		for thread in self.threads:
+			thread.join()
+					
+				
+		self.message.send('all threads closed')
 			
-          
-start = time.time()
-count = 0
-def block(count):
-          
-            #spawn a pool of threads, and pass them queue instance 
-	for i in range(300):
+		self.status.reset()
 		
-		t = ThreadUrl(queue)
-		t.setDaemon(True)
-		t.start()
-              
-           #populate queue with data
-	for a in range(10,150):
-		for b in range(250, 300):
-			for c in range(1, 10):
-				for i in range(1, 10):
-					address = str(a) + '.' +str(b) + '.' + str(c) + '.' + str(i)
-					queue.put(address)
-					count = count + 1  
+	def makeIPlist(self):
+		for a in range(self.iprange['ip1a'],self.iprange['ip2a']):
+			for b in range(self.iprange['ip1b'], self.iprange['ip2b']):
+				for c in range(self.iprange['ip1c'], self.iprange['ip2c']):
+					for i in range(self.iprange['ip1d'], self.iprange['ip2d']):
+						address = str(a) + '.' +str(b) + '.' + str(c) + '.' + str(i)
+						self.ips_to_scan.append(address)
+						
+						#count = count + 1  
 		
-           
-           #wait on the queue until everything has been processed     
-	queue.join()
-	#for i in range(300):
-	#	queue.put('kill')
-	return count
-
-
-count = block(count)
-f.close()
+			
+	def Scan(self):
+		#starting time
+		self.start = time.time()
+				
+		self.message.send('scanning')
+		
+		print 'starting'
+		count = 0
+		self.makeIPlist()
+		list_length = len(self.ips_to_scan)
+		self.message.send(str(list_length)+' ips on scan list')
+		
+		self.status = Status(list_length, self.output_window)
+			
+			#spawn a pool of threads, and pass them queue instance 
+		for i in range(200):
+			t = IPScanThread(self.queue, self.status, self.output_window, self.log_level)
+			t.setDaemon(True)
+			t.start()
+			self.threads.append(t)
+				
+				#populate queue with data
+		for thread in self.threads:
+			print thread
+		
+		for address in self.ips_to_scan:
+			self.queue.put(address)
+			
+								
+								
+				#wait on the queue until everything has been processed     
+		self.queue.join()
+				
+				#poison pills
+				#for i in range(300):
+				#	queue.put('kill')
+				
+				#calculate total time on process
+		self.totaltime = time.time() - self.start				
+			#f.close()
 	          
 
 
-print count, " ips scanned"
-print "Elapsed Time: %s" % (time.time() - start)
-print count / (time.time() - start), ' ips/sec'
+#print count, " ips scanned"
+#print "Elapsed Time: %s" % (time.time() - start)
+#print count / (time.time() - start), ' ips/sec'
+
+if __name__ == "__main__":
+	scan = IPScan()
+	scan.start()

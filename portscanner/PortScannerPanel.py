@@ -38,8 +38,7 @@ class PortScannerPanel(wx.Panel):
 		#self = wx.Panel(self)	
 		
 		#sizer
-		sizer = wx.GridBagSizer(4, 4)
-		
+		sizer = wx.GridBagSizer(4, 4)		
 	
 		#title text
 		font1 = wx.Font(15, wx.DEFAULT, wx.NORMAL, wx.BOLD)
@@ -89,12 +88,9 @@ class PortScannerPanel(wx.Panel):
 		self.gauge = wx.Gauge(self, range=TASK_RANGE)
 		sizer.Add(self.gauge, pos=(6,0), span=(1,8), flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)       
 		
-		#set expandable rows and columns
-		
+		#set expandable rows and columns		
 		sizer.AddGrowableRow(3)
-		sizer.AddGrowableCol(7)
-		
-		
+		sizer.AddGrowableCol(7)		
 		
 		#Exit key bindings
 		self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
@@ -161,7 +157,7 @@ class PortScannerPanel(wx.Panel):
 			self.text_info.AppendText('ERROR, Timeout value must be integer'+'\n')
 			return
 		
-		t = PortScan(ipaddress, timeout, self.scan_type, self.gauge, self )
+		t = PortScan(self)
 		t.start()
 		
 	def OnKeyDown(self, e):        
