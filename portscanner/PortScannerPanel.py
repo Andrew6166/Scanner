@@ -157,7 +157,7 @@ class PortScannerPanel(wx.Panel):
 			self.text_info.AppendText('ERROR, Timeout value must be integer'+'\n')
 			return
 		
-		t = PortScan(self)
+		t = PortScan(ipaddress, timeout, self.scan_type, self.gauge, self)
 		t.start()
 		
 	def OnKeyDown(self, e):        
