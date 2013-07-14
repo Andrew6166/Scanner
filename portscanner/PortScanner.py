@@ -14,6 +14,7 @@ import sys
 import Queue
 import threading
 import time
+from PanelMessage import PanelMessage
 from ThreadScan import ThreadScan
 from Status import Status
 from NewTextEvent import NewTextEvent
@@ -41,6 +42,9 @@ class PortScan(threading.Thread):
 		#pull the wx frame for the info box event		
 		self.output_window = output_window
 		
+		#creat messanger object for sending text to panel
+		self.message = PanelMessage(output_window)
+		
 		#get gauge instance from gui
 		self.gauge = gauge
 				
@@ -65,6 +69,9 @@ class PortScan(threading.Thread):
 		#how many threads to run concurently
 		self.threadcount = 200
 		
+		#list to contain all the threeads generated
+		self.threads = []
+		
 		#range of ports to scan, set 9999 as default, but changed later if needed
 		self.portrange = 9999
 		
@@ -82,6 +89,19 @@ class PortScan(threading.Thread):
 			
 	def run(self):
 		self.Scan()
+		
+	def stop(self):
+		self.message.send('stopping')		
+				
+		for thread in self.threads:
+			thread.stop()		
+			
+		for thread in self.threads:
+			thread.join()	
+						
+		self.message.send('all threads closed')
+			
+		#self.status.reset()
 	
 	def Scan(self):
 		self.start = time.time()
@@ -106,6 +126,7 @@ class PortScan(threading.Thread):
 			t = ThreadScan(self.queue, self.host, self.port_list, self.timeout, self.status)
 			t.setDaemon(True)
 			t.start()
+			self.threads.append(t)
 		
 		
 		#fill queue with ports needing to be scanned depending on type

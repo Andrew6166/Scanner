@@ -48,26 +48,27 @@ class IPScan(threading.Thread):
 		#verbose
 		self.log_level = loglevel
 		
+		#flag to see if stop scan was called
+		self.stopped = False
+		
 				
 	def run(self):
 		self.Scan()
 		
 	def stop(self):
+		self.stopped = True
 		self.message.send('stopping')
-		for i in range(200):
-			self.queue.put('kill')
-		
-		
+								
 		for thread in self.threads:
-			thread.stop()
-		
+			thread.stop()		
+			
 		for thread in self.threads:
-			thread.join()
-					
-				
+			thread.join()	
+						
 		self.message.send('all threads closed')
 			
 		self.status.reset()
+		
 		
 	def makeIPlist(self):
 		for a in range(self.iprange['ip1a'],self.iprange['ip2a']):
@@ -112,10 +113,13 @@ class IPScan(threading.Thread):
 								
 				#wait on the queue until everything has been processed     
 		self.queue.join()
-				
+		
+		if self.stopped == False:		
 				#poison pills
-		for i in range(300):
-			queue.put('kill')
+			for i in range(300):
+				queue.put('kill')
+			
+		self.message.send("threads killed")
 				
 				#calculate total time on process
 		self.totaltime = time.time() - self.start				

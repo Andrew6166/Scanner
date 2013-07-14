@@ -14,6 +14,7 @@ class ThreadScan(threading.Thread):
 		self.timeout = timeout
 		self.port_list = port_list
 		self.status = status
+		self.running = True
 		
 	def scan_server(self, address, port): 
 		s = socket.socket()
@@ -26,9 +27,11 @@ class ThreadScan(threading.Thread):
 			return False
 		s.close() 
 		
-		
+	def stop(self):
+		self.running = False
+			
 	def run(self):
-		while True:
+		while self.running:
 			
                 #grabs host from queue
 			port= self.queue.get()

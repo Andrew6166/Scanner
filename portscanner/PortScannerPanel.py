@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import socket
 import subprocess
 import sys
@@ -51,8 +50,8 @@ class PortScannerPanel(wx.Panel):
 		sizer.Add(line, pos=(1,0), span=(1,8))
 		
 		#button to start scan
-		button = wx.Button(self, label='Scan')
-		sizer.Add(button, pos=(2,0), flag=wx.LEFT, border=5) 
+		self.scan_button = wx.ToggleButton(self, label='Scan')
+		sizer.Add(self.scan_button, pos=(2,0), flag=wx.LEFT, border=5) 
         
         #label for the host field
 		font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD)
@@ -96,7 +95,7 @@ class PortScannerPanel(wx.Panel):
 		self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
 		
 		#bind button to method to call port scanner
-		button.Bind(wx.EVT_BUTTON, self.Scanner)
+		self.scan_button.Bind(wx.EVT_TOGGLEBUTTON, self.Scanner)
 		
 		#Bind the text box to the enter key
 		self.text.Bind(wx.EVT_TEXT_ENTER, self.Scanner)
@@ -141,22 +140,31 @@ class PortScannerPanel(wx.Panel):
         
         
 	def Scanner(self, e):
-		#check for the type of scan
-		self.scan_type = self.check.IsChecked()
+		if self.scan_button.GetValue():
+			#check for the type of scan
+			self.scan_type = self.check.IsChecked()
 		
-		#pull the ip address out of text field
-		ipaddress = self.text.GetValue()
+			#pull the ip address out of text field
+			ipaddress = self.text.GetValue()
 		
-		#pull the timeout delay
-		timeout = self.timeout.GetValue()
-		try:
-			timeout = int(timeout)
-		except ValueError:
-			self.text_info.AppendText('ERROR, Timeout value must be integer'+'\n')
-			return
+			#pull the timeout delay
+			timeout = self.timeout.GetValue()
+			try:
+				timeout = int(timeout)
+			except ValueError:
+				self.text_info.AppendText('ERROR, Timeout value must be integer'+'\n')
+				return
 		
-		t = PortScan(ipaddress, timeout, self.scan_type, self.gauge, self)
-		t.start()
+			self.t = PortScan(ipaddress, timeout, self.scan_type, self.gauge, self)
+			self.t.start()
+			
+			self.scan_button.SetLabel('Stop')
+			
+		else:
+			self.text_info.AppendText('Stopping...')
+			self.t.stop()
+			self.scan_button.SetLabel('Scan')
+		
 		
 	def OnKeyDown(self, e):        
 		key = e.GetKeyCode()        
