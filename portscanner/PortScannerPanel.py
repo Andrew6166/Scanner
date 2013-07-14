@@ -35,7 +35,7 @@ class PortScannerPanel(wx.Panel):
         
 	def InitUI(self):   
 
-		#self = wx.Panel(self)	
+		
 		
 		#sizer
 		sizer = wx.GridBagSizer(4, 4)		
@@ -110,9 +110,9 @@ class PortScannerPanel(wx.Panel):
 
 		
 
-		#self.SetSize((600, 500))
+		
 		self.SetSizerAndFit(sizer)
-		#self.SetTitle('wx.Statusbar')
+		
 		
 		
 					
@@ -128,9 +128,7 @@ class PortScannerPanel(wx.Panel):
 		self.text_info.AppendText(msg + '\n')
 		e.Skip()
 
-	def StatusTextInfo(self, e):
-		#msg = e.getText()
-		#parent.sb.SetStatusText(msg)
+	def StatusTextInfo(self, e):		
 		e.Skip()
 		
 	def StatusBar(self, e):
@@ -166,17 +164,6 @@ class PortScannerPanel(wx.Panel):
 			ret  = wx.MessageBox('Are you sure to quit?', 'Question', 
 			wx.YES_NO | wx.NO_DEFAULT, self)                
 			if ret == wx.YES:
-				self.Close()
-				
-		 
-		 #e.skip()
+				self.Close()	
 		            
-        
-def main():
-    
-    ex = wx.App()
-    Example(None)
-    ex.MainLoop()    
-
-if __name__ == '__main__':
-    main()   
+  

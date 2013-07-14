@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 import Queue
 import threading
 import time
@@ -29,9 +29,7 @@ class IPScan(threading.Thread):
 		#iprange
 		self.iprange = iprange
 		
-		#File to write out to
-		#f = open('./data/iplist.txt', 'a')
-		
+				
 		#creat queue for consumer threads
 		self.queue = Queue.Queue()		
 		
@@ -59,7 +57,7 @@ class IPScan(threading.Thread):
 		for i in range(200):
 			self.queue.put('kill')
 		
-		#self.queue.join()
+		
 		for thread in self.threads:
 			thread.stop()
 		
@@ -116,19 +114,10 @@ class IPScan(threading.Thread):
 		self.queue.join()
 				
 				#poison pills
-				#for i in range(300):
-				#	queue.put('kill')
+		for i in range(300):
+			queue.put('kill')
 				
 				#calculate total time on process
 		self.totaltime = time.time() - self.start				
-			#f.close()
-	          
+			
 
-
-#print count, " ips scanned"
-#print "Elapsed Time: %s" % (time.time() - start)
-#print count / (time.time() - start), ' ips/sec'
-
-if __name__ == "__main__":
-	scan = IPScan()
-	scan.start()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+
 import socket
 import subprocess
 import sys
@@ -6,7 +6,6 @@ import Queue
 import threading
 import time
 import wx
-#from IPScanThread import IPScanThread
 from IPScanner import IPScan
 from IPScanThread import IPScanThread
 
@@ -38,7 +37,7 @@ class IPScannerPanel(wx.Panel):
         
 	def InitUI(self):   
 
-		#self = wx.Panel(self)	
+		
 		
 		#sizer
 		sizer = wx.GridBagSizer(4, 4)
@@ -107,10 +106,7 @@ class IPScannerPanel(wx.Panel):
 		
 				
 		
-        #option to select full scan
-		#self.check = wx.CheckBox(self, label='Full scan')
-		#sizer.Add(self.check, pos=(1,4), flag=wx.LEFT, border = 20)
-		
+        		
 		#Label for timeout box
 		timeout = wx.StaticText(self, label='Timeout', )
 		sizer.Add(timeout, pos=(3,1), flag=wx.LEFT, border = 20)
@@ -145,21 +141,14 @@ class IPScannerPanel(wx.Panel):
 		#bind button to method to call port scanner
 		self.scan_button.Bind(wx.EVT_TOGGLEBUTTON, self.Scanner)
 		
-		#Bind the text box to the enter key
-		#self.text.Bind(wx.EVT_TEXT_ENTER, self.Scanner)
-		
+				
         
         #bind the custom events for updating status bar, text window, gauge to respective methods
 		self.Bind(EVT_THREAD_TEXT_EVENT, self.ThreadTextInfo)
 		self.Bind(EVT_STATUS_BAR_EVENT, self.StatusTextInfo)
-		self.Bind(EVT_GAUGE_EVENT, self.StatusBar)
-        
-
-		
-
-		#self.SetSize((600, 500))
+		self.Bind(EVT_GAUGE_EVENT, self.StatusBar)        
+	
 		self.SetSizerAndFit(sizer)
-		#self.SetTitle('wx.Statusbar')
 		
 		
 	def onSelect(self, e):
@@ -178,9 +167,7 @@ class IPScannerPanel(wx.Panel):
 		self.text_info.AppendText(msg + '\n')
 		e.Skip()
 
-	def StatusTextInfo(self, e):
-		#msg = e.getText()
-		#parent.sb.SetStatusText(msg)
+	def StatusTextInfo(self, e):		
 		e.Skip()
 		
 	def StatusBar(self, e):
@@ -193,11 +180,7 @@ class IPScannerPanel(wx.Panel):
         
         
 	def Scanner(self, e):
-		if self.scan_button.GetValue():
-		#check for the type of scan
-		#self.scan_type = self.check.IsChecked()
-			#loglevel = self.combo.GetString()
-		#empty array for ips
+		if self.scan_button.GetValue():		
 			iprange = {'ip1a':int(self.ip1a.GetValue()), 'ip1b':int(self.ip1b.GetValue()),
 						'ip1c':int(self.ip1c.GetValue()), 'ip1d':int(self.ip1d.GetValue()),
 						'ip2a':int(self.ip2a.GetValue()), 'ip2b':int(self.ip2b.GetValue()),
@@ -221,17 +204,6 @@ class IPScannerPanel(wx.Panel):
 			wx.YES_NO | wx.NO_DEFAULT, self)                
 			if ret == wx.YES:
 				self.Close()
-				
-		 
-		 #e.skip()
-		            
-        
-def main():
-    
-    ex = wx.App()
-    Example(None)
-    ex.MainLoop()    
-
-if __name__ == '__main__':
-    main()   
-
+					 
+		
+	

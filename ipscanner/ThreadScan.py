@@ -18,14 +18,11 @@ class ThreadScan(threading.Thread):
 	def scan_server(self, address, port): 
 		s = socket.socket()
 		s.settimeout(self.timeout) 
-		#print 'Scanning\t', port 
 		try: 
 			s.connect((address, port)) 
-			#print port, '\t Open' 
 			self.port_list.append(port)
 			return True 
 		except socket.error, e: 
-			#print port, '\t Closed' 
 			return False
 		s.close() 
 		
@@ -39,5 +36,4 @@ class ThreadScan(threading.Thread):
 				break
 			self.scan_server(self.host, port)
 			self.status.add()
-			self.queue.task_done()
-		#print 'thread stoppin'
+			self.queue.task_done()		

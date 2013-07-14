@@ -209,6 +209,5 @@ if __name__ == "__main__":
 	
 	scanner.scan()
 	print scanner.port_list
-	#print scanner.data
-	
-	#scanner.results()
+	print scanner.data	
+	scanner.results()

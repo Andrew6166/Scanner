@@ -12,14 +12,6 @@ from Status import EVT_GAUGE_EVENT
 
 from PanelMessage import PanelMessage
 
-#from IPScanner import TextEventType
-#from IPScanner import EVT_THREAD_TEXT_EVENT
-
-#from IPScanner import StatusEventType
-#from IPScanner import EVT_STATUS_BAR_EVENT
-
-
-
 	  
 class IPScanThread(threading.Thread):
 	
@@ -42,13 +34,12 @@ class IPScanThread(threading.Thread):
 		
 		self.running = True
 		
-		#verbose
+		#verbose level
 		self.log_level = log_level
 		
 	def ping(self, address):
 		ping = subprocess.Popen(['/bin/ping',address, '-c 1'], stderr=subprocess.STDOUT,stdout = subprocess.PIPE )
 		out, err = ping.communicate()
-		#print out
 		if '1 received' in out:
 			return True
 		else:
@@ -57,14 +48,10 @@ class IPScanThread(threading.Thread):
 	def scan(self, address, port): 
 		s = socket.socket()
 		s.settimeout(2) 
-	#print 'Scanning\t', port 
 		try: 
-			s.connect((address, port)) 
-		#print port, '\t Open' 
-		
+			s.connect((address, port)) 				
 			return True 
 		except socket.error, e: 
-			#print port, '\t Closed' 
 			return False
 		s.close()  
 		
@@ -73,8 +60,8 @@ class IPScanThread(threading.Thread):
 		
 	def run(self):
 		while self.running:
-                #grabs host from queue
-            
+               
+                #grabs host from queue            
 			host = self.queue.get()
 			openport = False	
 			if host == 'kill':
@@ -82,24 +69,17 @@ class IPScanThread(threading.Thread):
 			response = self.ping(host)
 			ports = ''
 			if response == True:				
-				#ip_list.append(host)
 				for port in [20, 21, 22, 23, 79, 80, 110, 113, 119, 143, 443, 1002, 1720, 5000, 8080]:
 					if self.scan(host, port) == True:
-						openport = True
-						print 'open port: ', port
+						openport = True						
 						ports = ports+',' + str(port)
 				if openport == True:
-					self.message.send(host+' <>-<>-OPEN PORT-<>-<>')
-					#f.write(host+','+ports+'\n')
-					print host, '<>-<>-<>-<>-<>-<>-<>-<>-OPEN--PORT-<>-<>-<>-<>-<>-<>-<>-<>'
+					self.message.send(host+' <>-<>-OPEN PORT-<>-<>')					
 				else:
 					if self.log_level >= 1:
-						self.message.send(host+' ******RESPONDED******')
-					print host, '******************responded******************'
+						self.message.send(host+' ******RESPONDED******')					
 			else:
 				if self.log_level >= 2:
-					self.message.send(host+' did not respond')
-				print host, ' did not respond'
+					self.message.send(host+' did not respond')				
 			self.status.add()	
-			self.queue.task_done()
-		print 'thread closing'
+			self.queue.task_done()		
