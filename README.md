@@ -8,6 +8,10 @@ or any UI and one of my first programs using threading.
   
   Todo:
   
+    -fix buggy start/stop on ipscanner
+    
+    -standardize thread handling and stopping between ipscanner and portscanner
+  
     -fix/catch overflow problem with inputting too many ips in ip address range
     
     -bind timer option on ip scanner to actual function
